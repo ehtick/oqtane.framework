@@ -574,7 +574,7 @@
     {
         try
         {
-            if (_username != string.Empty && _email != string.Empty)
+            if (_username != string.Empty && _email != string.Empty && Utilities.IsValidEmail(_email))
             {
                 if (_password == _confirm)
                 {

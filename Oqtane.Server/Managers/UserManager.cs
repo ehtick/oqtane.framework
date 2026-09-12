@@ -32,7 +32,7 @@ namespace Oqtane.Managers
         Task<bool> ForgotUsername(string email);
         Task<User> ResetPassword(User user, string token);
         User VerifyTwoFactor(User user, string token);
-        Task<UserValidateResult> ValidateUser(string username, string email, string password);
+        Task<bool> ValidateUsername(string username);
         Task<bool> ValidatePassword(string password);
         Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
         Task<List<UserPasskey>> GetPasskeys(int userId, int siteId);
@@ -643,30 +643,15 @@ namespace Oqtane.Managers
             return user;
         }
 
-        public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
+        public async Task<bool> ValidateUsername(string username)
         {
-            var validateResult = new UserValidateResult { Succeeded = true };
-
-            //validate username
             var allowedChars = _identityUserManager.Options.User.AllowedUserNameCharacters;
             if (string.IsNullOrWhiteSpace(username) || (!string.IsNullOrEmpty(allowedChars) && username.Any(c => !allowedChars.Contains(c))))
             {
-                validateResult.Succeeded = false;
-                validateResult.Errors.Add("Message.Username.Invalid", string.Empty);
+                return false;
             }
-
-            //validate password
-            var passwordValidator = new PasswordValidator<IdentityUser>();
-            var passwordResult = await passwordValidator.ValidateAsync(_identityUserManager, null, password);
-            if (!passwordResult.Succeeded)
-            {
-                validateResult.Succeeded = false;
-                validateResult.Errors.Add("Message.Password.Invalid", string.Empty);
-            }
-
-            return validateResult;
+            return true;
         }
-
         public async Task<bool> ValidatePassword(string password)
         {
             var validator = new PasswordValidator<IdentityUser>();
